@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Celestial Networks - Republic High Command</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap');
+
+html, body { margin: 0; padding: 0; background: #0d0d12; }
+
+.cn-wrap * { box-sizing: border-box; margin: 0; padding: 0; }
+.cn-wrap {
+  --cn-gold: #c9a84c; --cn-dark: #0d0d12; --cn-surface: #13131c;
+  --cn-surface2: #1a1a28; --cn-border: rgba(255,255,255,0.07);
+  --cn-text: #e8e4f0; --cn-muted: #8a85a0;
+  background: var(--cn-dark); color: var(--cn-text);
+  font-family: 'Inter','Segoe UI',system-ui,sans-serif;
+  font-size: 14px; line-height: 1.6;
+  max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem;
+}
+
+/* Header */
+.cn-header { text-align: center; padding: 2.5rem 0 2rem; border-bottom: 1px solid var(--cn-border); margin-bottom: 1.5rem; }
+.cn-logo-img { width: 80px; height: 80px; margin-bottom: 1.25rem; display: block; margin-left: auto; margin-right: auto; }
+.cn-header h1 { font-family: 'Rajdhani','Trebuchet MS',sans-serif; font-size: 2rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #fff; }
+.cn-header h1 span { color: var(--cn-gold); }
+.cn-subtitle { font-size: 12px; color: var(--cn-muted); margin-top: 0.5rem; letter-spacing: 0.05em; text-transform: uppercase; }
+.cn-updated { font-size: 11px; color: var(--cn-muted); margin-top: 0.4rem; }
+
+/* Loading */
+.cn-loading { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 4rem; color: var(--cn-muted); font-size: 13px; }
+.cn-spinner { width: 32px; height: 32px; border: 2px solid var(--cn-border); border-top-color: var(--cn-gold); border-radius: 50%; animation: cn-spin 0.8s linear infinite; }
+@keyframes cn-spin { to { transform: rotate(360deg); } }
+
+/* Main tabs */
+.cn-tabs { display: flex; gap: 6px; margin-bottom: 1.5rem; background: var(--cn-surface); padding: 5px; border-radius: 10px; border: 1px solid var(--cn-border); }
+.cn-tab { flex: 1; padding: 9px 8px; border: 1px solid transparent; background: transparent; color: var(--cn-muted); font-family: 'Rajdhani','Trebuchet MS',sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; border-radius: 7px; transition: all 0.2s; }
+.cn-tab:hover { color: var(--cn-text); background: var(--cn-surface2); }
+.cn-tab.cn-tab-active { background: var(--cn-surface2); color: var(--cn-gold); border-color: rgba(201,168,76,0.35); }
+
+/* Pages */
+.cn-page { display: none; }
+.cn-page.cn-page-active { display: block; }
+
+/* Stats */
+.cn-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 1.25rem; }
+.cn-stat { background: var(--cn-surface); border: 1px solid var(--cn-border); border-radius: 10px; padding: 14px; text-align: center; }
+.cn-stat-v { font-family: 'Rajdhani','Trebuchet MS',sans-serif; font-size: 2rem; font-weight: 700; line-height: 1; }
+.cn-stat-l { font-size: 10px; color: var(--cn-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+
+/* Search */
+.cn-search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
+.cn-search-wrap { position: relative; flex: 1; min-width: 180px; }
+.cn-search-ico { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--cn-muted); pointer-events: none; }
+.cn-search-inp { width: 100%; padding: 9px 12px 9px 33px; background: var(--cn-surface); border: 1px solid var(--cn-border); border-radius: 8px; color: var(--cn-text); font-size: 13px; font-family: inherit; outline: none; transition: border-color 0.2s; }
+.cn-search-inp:focus { border-color: rgba(201,168,76,0.4); }
+.cn-search-inp::placeholder { color: var(--cn-muted); }
+.cn-filters { display: flex; gap: 5px; flex-wrap: wrap; }
+.cn-fil { padding: 6px 12px; border: 1px solid var(--cn-border); background: var(--cn-surface); color: var(--cn-muted); font-family: 'Rajdhani','Trebuchet MS',sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+.cn-fil:hover { color: var(--cn-text); }
+.cn-fil.cn-fil-on { color: var(--cn-gold); border-color: rgba(201,168,76,0.4); background: rgba(201,168,76,0.07); }
+
+/* Layout */
+.cn-layout { display: grid; grid-template-columns: 250px 1fr; gap: 10px; align-items: start; }
+
+/* Sidebar */
+.cn-sidebar { background: var(--cn-surface); border: 1px solid var(--cn-border); border-radius: 10px; overflow: hidden; max-height: 600px; overflow-y: auto; }
+.cn-sidebar::-webkit-scrollbar { width: 3px; }
+.cn-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+.cn-reg-item { display: flex; align-items: stretch; cursor: pointer; border-bottom: 1px solid var(--cn-border); transition: background 0.12s; }
+.cn-reg-item:last-child { border-bottom: none; }
+.cn-reg-item:hover { background: var(--cn-surface2); }
+.cn-reg-item.cn-reg-on { background: var(--cn-surface2); }
+.cn-reg-bar { width: 3px; flex-shrink: 0; opacity: 0.45; transition: opacity 0.15s; }
+.cn-reg-item:hover .cn-reg-bar, .cn-reg-item.cn-reg-on .cn-reg-bar { opacity: 1; }
+.cn-reg-body { padding: 10px 13px; flex: 1; min-width: 0; }
+.cn-reg-name { font-family: 'Rajdhani','Trebuchet MS',sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cn-reg-item.cn-reg-on .cn-reg-name { color: var(--rc, var(--cn-gold)); }
+.cn-reg-meta { display: flex; gap: 6px; align-items: center; font-size: 10px; color: var(--cn-muted); margin-top: 2px; }
+.cn-reg-elig { background: rgba(39,174,96,0.15); color: #27ae60; padding: 1px 5px; border-radius: 3px; font-size: 9px; font-weight: 600; }
+
+/* Panel */
+.cn-panel { background: var(--cn-surface); border: 1px solid var(--cn-border); border-radius: 10px; overflow: hidden; min-height: 380px; }
+.cn-panel-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; height: 380px; color: var(--cn-muted); font-size: 12px; text-align: center; padding: 2rem; }
+.cn-panel-top { border-left: 4px solid; padding: 16px 18px; border-bottom: 1px solid var(--cn-border); background: rgba(255,255,255,0.02); }
+.cn-panel-title { font-family: 'Rajdhani','Trebuchet MS',sans-serif; font-size: 1.2rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #fff; margin-bottom: 6px; }
+.cn-pm { display: flex; gap: 8px; align-items: baseline; font-size: 12px; margin-top: 4px; }
+.cn-pml { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cn-muted); min-width: 70px; }
+.cn-slbl { font-family: 'Rajdhani','Trebuchet MS',sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cn-muted); padding: 12px 16px 6px; border-bottom: 1px solid var(--cn-border); }
+.cn-cmd-list { padding: 8px 12px 12px; display: flex; flex-direction: column; gap: 6px; }
+.cn-cmd-card { display: flex; align-items: center; gap: 10px; background: var(--cn-surface2); border: 1px solid var(--cn-border); border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: border-color 0.15s; }
+.cn-cmd-card:hover { border-color: rgba(255,255,255,0.15); }
+.cn-cmd-av { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Rajdhani','Trebuchet MS',sans-serif; font-size: 15px; font-weight: 700; flex-shrink: 0; border: 1px solid; }
+.cn-cmd-info { flex: 1; min-width: 0; }
+.cn-cmd-name { font-family: 'Rajdhani','Trebuchet MS',sans-serif; font-size: 14px; font-weight: 700; color: #fff; letter-spacing: 0.04em; text-transform: uppercase; }
+.cn-cmd-rank { font-size: 11px; color: var(--cn-muted); margin-top: 1px; }
+.cn-cmd-alias { font-style: italic; }
+.cn-cmd-right { text-align: right; flex-shrink: 0; }
+.cn-elig-badge { display: inline-block; padding: 2px 7px; border-radius: 20px; font-size: 9px; font-weight: 600; background: rgba(39,174,96,0.15); color: #27ae60; margin-bottom: 3px; }
+.cn-cmd-date { font-size: 10px; color: var(--cn-muted); }
+.cn-info-ico { width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--cn-border); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--cn-muted); flex-shrink: 0; font-style: italic; font-family: Georgia,serif; }
+.cn-empty { color: var(--cn-muted); font-size: 12px; padding: 1rem 16px; }
+
+/* Rank hierarchy */
+.cn-rank-intro { font-size: 12px; color: var(--cn-muted); margin-bottom: 1.25rem; padding: 10px 14px; background: var(--cn-surface); border-radius: 8px; border: 1px solid var(--cn-border); }
+.cn-branch-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.cn-btab { padding: 6px 12px; border: 1px solid var(--cn-border); background: var(--cn-surface); color: var(--cn-muted); font-family: 'Rajdhani','Trebuchet MS',sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+.cn-btab:hover { color: var(--cn-text); }
+.cn-rank-div { font-family: 'Rajdhani','Trebuchet MS',sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 12px; border-radius: 4px; display: inline-block; margin: 1rem 0 0.5rem; }
+.cn-rank-list { display: flex; flex-direction: column; gap: 5px; }
+.cn-rank-row { display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: var(--cn-surface); border: 1px solid var(--cn-border); border-left: 3px solid; border-radius: 8px; cursor: pointer; transition: background 0.15s; }
+.cn-rank-row:hover { background: var(--cn-surface2); }
+.cn-rank-badge-ico { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Rajdhani','Trebuchet MS',sans-serif; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+.cn-rank-name { flex: 1; font-size: 13px; font-weight: 500; }
+.cn-rank-days { font-size: 11px; color: var(--cn-muted); }
+.cn-rank-max { font-size: 10px; padding: 2px 7px; border-radius: 4px; background: rgba(201,168,76,0.15); color: var(--cn-gold); font-weight: 700; }
+.cn-rank-info-ico { width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--cn-border); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--cn-muted); flex-shrink: 0; font-style: italic; font-family: Georgia,serif; }
+
+/* Bodygroup rules */
+.cn-rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cn-rules-wide { grid-column: 1 / -1; }
+.cn-rules-card { background: var(--cn-surface); border: 1px solid var(--cn-border); border-radius: 10px; padding: 16px; }
+.cn-rules-title { font-family: 'Rajdhani','Trebuchet MS',sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cn-gold); margin-bottom: 12px; }
+.cn-rule-row { display: flex; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--cn-border); font-size: 12px; }
+.cn-rule-row:last-child { border-bottom: none; }
+.cn-rule-tier { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 4px; white-space: nowrap; text-align: center; min-width: 65px; }
+.cn-tier-hc { background: #2a2a2a; color: #c9a84c; border: 1px solid rgba(201,168,76,0.4); }
+.cn-tier-sc { background: rgba(192,57,43,0.2); color: #c0392b; }
+.cn-tier-co { background: rgba(212,172,13,0.2); color: #b8960b; }
+.cn-tier-so { background: rgba(231,76,60,0.2); color: #e74c3c; }
+.cn-tier-of { background: rgba(41,128,185,0.2); color: #2980b9; }
+.cn-tier-nc { background: rgba(39,174,96,0.2); color: #27ae60; }
+.cn-tier-en { background: rgba(127,140,141,0.2); color: #7f8c8d; }
+.cn-key-item { display: flex; align-items: center; gap: 10px; font-size: 12px; padding: 5px 0; border-bottom: 1px solid var(--cn-border); }
+.cn-key-item:last-child { border-bottom: none; }
+.cn-key-sw { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+
+/* Popup */
+.cn-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 1rem; }
+.cn-overlay.cn-overlay-show { display: flex; }
+.cn-popup { background: var(--cn-surface); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; width: 100%; max-width: 460px; max-height: 85vh; overflow-y: auto; position: relative; }
+.cn-popup::-webkit-scrollbar { width: 3px; }
+.cn-popup::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+.cn-popup-close { position: absolute; top: 10px; right: 12px; background: none; border: none; color: var(--cn-muted); font-size: 20px; cursor: pointer; padding: 2px 8px; border-radius: 4px; font-family: inherit; line-height: 1; }
+.cn-popup-close:hover { color: var(--cn-text); background: var(--cn-surface2); }
+.cn-popup-top { padding: 18px 44px 16px 18px; border-bottom: 1px solid var(--cn-border); }
+.cn-popup-av { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Rajdhani','Trebuchet MS',sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 10px; border: 1px solid; }
+.cn-popup-name { font-family: 'Rajdhani','Trebuchet MS',sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #fff; }
+.cn-popup-sub { font-size: 12px; color: var(--cn-muted); margin-top: 2px; }
+.cn-popup-body { padding: 14px 18px; }
+.cn-popup-row { display: flex; gap: 10px; align-items: baseline; font-size: 12px; padding: 8px 0; border-bottom: 1px solid var(--cn-border); }
+.cn-popup-row:last-child { border-bottom: none; }
+.cn-popup-row.cn-popup-block { align-items: flex-start; flex-direction: column; gap: 6px; }
+.cn-popup-lbl { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cn-muted); min-width: 100px; flex-shrink: 0; }
+.cn-elig-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.cn-elig-y { background: rgba(39,174,96,0.15); color: #27ae60; }
+.cn-elig-n { background: rgba(192,57,43,0.12); color: #c0392b; }
+.cn-tier-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.cn-equiv-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.cn-equiv-tag { font-size: 11px; padding: 3px 9px; border-radius: 4px; background: var(--cn-surface2); border: 1px solid var(--cn-border); }
+.cn-equiv-tag strong { color: var(--cn-gold); font-weight: 600; }
+
+@media (max-width: 700px) {
+  .cn-stats { grid-template-columns: repeat(2,1fr); }
+  .cn-layout { grid-template-columns: 1fr; }
+  .cn-sidebar { max-height: 260px; }
+  .cn-rules-grid { grid-template-columns: 1fr; }
+  .cn-tabs { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<div class="cn-wrap">
+
+  <div class="cn-header">
+    <img src="https://media.invisioncic.com/a334757/set_resources_3/logo_white_main.png?_cb=1777194171" class="cn-logo-img" alt="Celestial Networks" />
+    <h1>Republic <span>High Command</span></h1>
+    <p class="cn-subtitle">Commanders Database</p>
+    <p class="cn-updated" id="cn-updated">Loading...</p>
+  </div>
+
+  <div class="cn-tabs">
+    <button class="cn-tab cn-tab-active" onclick="cnTab('commanders',this)">Commanders</button>
+    <button class="cn-tab" onclick="cnTab('ranks',this)">Rank Hierarchy</button>
+    <button class="cn-tab" onclick="cnTab('rules',this)">Bodygroup Rules</button>
+  </div>
+
+  <div class="cn-loading" id="cn-loading">
+    <div class="cn-spinner"></div>
+    <p>Fetching live data...</p>
+  </div>
+
+  <!-- COMMANDERS PAGE -->
+  <div class="cn-page" id="cn-page-commanders">
+    <div class="cn-stats" id="cn-stats"></div>
+    <div class="cn-search-row">
+      <div class="cn-search-wrap">
+        <svg class="cn-search-ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8.5" cy="8.5" r="5"/><path d="M13 13l3 3"/></svg>
+        <input class="cn-search-inp" id="cn-search" type="text" placeholder="Search commanders, regiments, aliases..." />
+      </div>
+      <div class="cn-filters" id="cn-filters"></div>
+    </div>
+    <div class="cn-layout">
+      <div class="cn-sidebar" id="cn-sidebar"></div>
+      <div class="cn-panel" id="cn-panel">
+        <div class="cn-panel-empty">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.3"><circle cx="20" cy="20" r="15"/><path d="M20 13v7l4 3"/></svg>
+          <p>Select a regiment from the list</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RANK HIERARCHY PAGE -->
+  <div class="cn-page" id="cn-page-ranks">
+    <div class="cn-rank-intro">Click any rank to see full details, equivalent ranks across branches, and promotion requirements. Promotion times may increase at CO discretion but must not go below the minimum listed.</div>
+    <div class="cn-branch-tabs" id="cn-branch-tabs"></div>
+    <div class="cn-rank-list" id="cn-rank-list"></div>
+  </div>
+
+  <!-- BODYGROUP RULES PAGE -->
+  <div class="cn-page" id="cn-page-rules">
+    <div class="cn-rules-grid">
+      <div class="cn-rules-card">
+        <div class="cn-rules-title">Bodygroup Rules</div>
+        <div class="cn-rule-row"><span class="cn-rule-tier cn-tier-en">Enlisted +</span><span>May wear all cosmetics. No Kama, Pauldron, Arm Antenna or Sunvisor.</span></div>
+        <div class="cn-rule-row"><span class="cn-rule-tier cn-tier-nc">NCO +</span><span>Can wear a Pauldron.</span></div>
+        <div class="cn-rule-row"><span class="cn-rule-tier cn-tier-of">Officer +</span><span>Can wear Arm Antenna, Sun Visor and Kama.</span></div>
+        <div class="cn-rule-row"><span class="cn-rule-tier cn-tier-hc">Exception</span><span>Lore Characters may wear their appropriate Lore uniform.</span></div>
+      </div>
+      <div class="cn-rules-card">
+        <div class="cn-rules-title">Ranking Key</div>
+        <div class="cn-key-item"><div class="cn-key-sw" style="background:#2a2a2a;border:1px solid #c9a84c"></div><span>High Command</span></div>
+        <div class="cn-key-item"><div class="cn-key-sw" style="background:#c0392b"></div><span>Senior Commander</span></div>
+        <div class="cn-key-item"><div class="cn-key-sw" style="background:#d4ac0d"></div><span>Commander</span></div>
+        <div class="cn-key-item"><div class="cn-key-sw" style="background:#e74c3c"></div><span>Senior Officer</span></div>
+        <div class="cn-key-item"><div class="cn-key-sw" style="background:#2980b9"></div><span>Officer</span></div>
+        <div class="cn-key-item"><div class="cn-key-sw" style="background:#27ae60"></div><span>NCO</span></div>
+        <div class="cn-key-item"><div class="cn-key-sw" style="background:#7f8c8d"></div><span>Enlisted</span></div>
+        <div class="cn-key-item"><div class="cn-key-sw" style="background:#1abc9c"></div><span>Jedi</span></div>
+      </div>
+      <div class="cn-rules-card cn-rules-wide">
+        <div class="cn-rules-title">Promotion Eligibility Requirements</div>
+        <div class="cn-rule-row"><span class="cn-rule-tier cn-tier-hc">MAX</span><span>Marshal Commander, Commodore, Bureau Chief. No further promotion within standard ranks.</span></div>
+        <div class="cn-rule-row"><span class="cn-rule-tier cn-tier-sc">28 days</span><span>Senior Commander. Minimum 28 days since last promotion.</span></div>
+        <div class="cn-rule-row"><span class="cn-rule-tier cn-tier-co">21 days</span><span>Commander and Battalion Commander.</span></div>
+        <div class="cn-rule-row"><span class="cn-rule-tier cn-tier-so">14 days</span><span>Colonel, Major, Captain.</span></div>
+        <div class="cn-rule-row"><span class="cn-rule-tier cn-tier-of">10 days</span><span>Lieutenant, 2nd Lieutenant.</span></div>
+        <div class="cn-rule-row"><span class="cn-rule-tier cn-tier-of">7 days</span><span>Officer Cadet, Warrant Officer.</span></div>
+        <div class="cn-rule-row"><span class="cn-rule-tier cn-tier-nc">6 days</span><span>Sergeant Major, First Sergeant, Master Sergeant.</span></div>
+        <div class="cn-rule-row"><span class="cn-rule-tier cn-tier-nc">5 days</span><span>Staff Sergeant, Sergeant.</span></div>
+        <div class="cn-rule-row"><span class="cn-rule-tier cn-tier-en">3 days</span><span>Corporal.</span></div>
+        <div class="cn-rule-row"><span class="cn-rule-tier cn-tier-en">2 days</span><span>Lance Corporal, Private First Class.</span></div>
+        <div class="cn-rule-row"><span class="cn-rule-tier cn-tier-en">1 day</span><span>Private. Entry level across all branches.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP -->
+  <div class="cn-overlay" id="cn-overlay" onclick="cnClosePopup(event)">
+    <div class="cn-popup" id="cn-popup"></div>
+  </div>
+
+</div>
+<script>
+(function(){
+
+var SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSS1yTrFyk_8yefHdKmnZI3laEKdsqGvzKr-7UG8Cayn309s2ke3SPKd4z-Pt1GcGkeiglmk1yoOYlK/pub?gid=1565200739&single=true&output=csv';
+var CSV_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(SHEET_URL);
+
+var REGIMENT_COLOURS = {
+  '501st Legion':'#4a90d9','212th Attack Battalion':'#e8a020','Republic Navy':'#c040c0',
+  '5th Fleet Security':'#20a060','77th Medical Brigade':'#e84040','Rancor Battalion':'#909090',
+  "Doom's Unit":'#20c0a0','442nd Siege Battalion':'#6060c0','44th Spec-Ops Division':'#c08020',
+  '187th Legion':'#8040c0','104th Wolfpack Battalion':'#e86820','327th Star Corps':'#d0c020',
+  '91st Recon Corps':'#20a0d0','41st Elite Corps':'#40c040','Delta Squad':'#e040a0',
+  'H.O.P.E Squad':'#40a0e0','Omega Squad':'#a060e0','Republic High Command':'#c9a84c',
+  'Jedi Order':'#1abc9c','38th Armoured Division':'#b06020','Keeli Company':'#e06060',
+  'Yayax Squad':'#60c080','Foxtrot Group':'#d06040','Ion Team':'#40d0c0',
+  'Aiwha Squad':'#8080e0','Blue Squad':'#4080ff','Veshok Squad':'#c0a040',
+  'Epsilon Squad':'#e08040','Aquila Squad':'#40e080'
+};
+
+var TIER_META = {
+  HC:{ label:'High Command',    bg:'#2a2a2a', text:'#c9a84c', border:'#c9a84c' },
+  SC:{ label:'Senior Commander',bg:'#c0392b', text:'#fff',    border:'#c0392b' },
+  CO:{ label:'Commander',       bg:'#d4ac0d', text:'#1a1200', border:'#d4ac0d' },
+  SO:{ label:'Senior Officer',  bg:'#e74c3c', text:'#fff',    border:'#e74c3c' },
+  OF:{ label:'Officer',         bg:'#2980b9', text:'#fff',    border:'#2980b9' },
+  NC:{ label:'NCO',             bg:'#27ae60', text:'#fff',    border:'#27ae60' },
+  EN:{ label:'Enlisted',        bg:'#5d6d7e', text:'#fff',    border:'#5d6d7e' },
+  JD:{ label:'Jedi',            bg:'#1abc9c', text:'#fff',    border:'#1abc9c' }
+};
+
+var BRANCHES = ['Army','ARC','Commando','Navy','Pilot','Engineer','Intelligence','Jedi'];
+var BRANCH_COLS = {
+  Army:'#4a90d9',ARC:'#e86820',Commando:'#c04040',
+  Navy:'#c040c0',Pilot:'#20a0d0',Engineer:'#20c080',
+  Intelligence:'#a060e0',Jedi:'#1abc9c'
+};
+
+var RANKS_ARMY = [
+  {name:'General',            days:'',    tier:'HC', desc:'Supreme commander of all ground forces on the server. Holds final authority over all regimental matters.',equiv:{Navy:'Fleet Admiral',Intelligence:'Director General',Jedi:'Grand Master'}},
+  {name:'Lieutenant General', days:'',    tier:'HC', desc:'Second in overall command. Assists the General and stands in when required.',equiv:{Navy:'Admiral',Intelligence:'Director'}},
+  {name:'Major General',      days:'',    tier:'HC', desc:'Senior strategic commander responsible for multiple regiments.',equiv:{Navy:'Vice Admiral',Intelligence:'Deputy Director'}},
+  {name:'Brigadier General',  days:'',    tier:'HC', desc:'Brigade-level command. Oversees groups of regiments.',equiv:{Navy:'Rear Admiral',Intelligence:'Rear Admiral (RI)',Jedi:'Master of the Order'}},
+  {name:'Marshal Commander',  days:'MAX', tier:'SC', desc:'The highest attainable rank within a regiment. Commands the regiment at the server level.',equiv:{ARC:'ARC Marshal Commander',Navy:'Commodore',Intelligence:'Bureau Chief',Jedi:'Jedi High Council'}},
+  {name:'Senior Commander',   days:'28',  tier:'SC', desc:'Senior regimental leadership. Assists the Marshal Commander and may act in their absence.',equiv:{ARC:'ARC Senior Commander',Navy:'Sub Officer',Pilot:'Captain',Engineer:'Director of Engineering',Intelligence:'Inspector General'}},
+  {name:'Commander',          days:'21',  tier:'CO', desc:'Full regimental command authority. Leads the regiment day to day.',equiv:{ARC:'ARC Commander',Commando:'Commander',Navy:'Lieutenant Commander',Pilot:'Wing Commander',Engineer:'Division Lead',Jedi:'Jedi Council / Senior General'}},
+  {name:'Battalion Commander',days:'21',  tier:'CO', desc:'Commands a battalion within the regiment. Reports directly to the Commander.',equiv:{ARC:'ARC Battalion Commander'}},
+  {name:'Colonel',            days:'14',  tier:'SO', desc:'Senior officer leading companies and assisting battalion command.',equiv:{ARC:'ARC Colonel',Commando:'Colonel',Navy:'Deck Officer',Pilot:'Wing Leader',Engineer:'Zone Manager',Intelligence:'Inspector'}},
+  {name:'Major',              days:'14',  tier:'SO', desc:'Company commander with significant operational authority.',equiv:{ARC:'ARC Major',Navy:'Major',Pilot:'Project Lead',Engineer:'Chief Superintendant'}},
+  {name:'Captain',            days:'14',  tier:'SO', desc:'Leads a platoon. A core officer rank with direct leadership responsibility.',equiv:{ARC:'ARC Captain',Commando:'Captain',Navy:'Lieutenant',Pilot:'Strike Leader',Engineer:'Site Manager',Intelligence:'Superintendant',Jedi:'Jedi Master / General'}},
+  {name:'Lieutenant',         days:'10',  tier:'OF', desc:'Junior officer assisting the Captain in platoon leadership.',equiv:{ARC:'ARC Lieutenant',Commando:'Lieutenant',Navy:'Sub Lieutenant',Pilot:'Flight Lieutenant',Engineer:'Systems Coordinator',Intelligence:'Supervisor'}},
+  {name:'2nd Lieutenant',     days:'10',  tier:'OF', desc:'Entry-level commissioned officer rank.',equiv:{ARC:'ARC 2nd Lieutenant',Navy:'Ensign',Pilot:'Flight Officer',Engineer:'Senior Foreman',Intelligence:'Lieutenant Supervisor'}},
+  {name:'Officer Cadet',      days:'7',   tier:'OF', desc:'Officer in training. Not yet fully commissioned.',equiv:{Navy:'Midshipman',Pilot:'Officer Cadet',Engineer:'Foreman',Intelligence:'Special Agent'}},
+  {name:'Warrant Officer',    days:'7',   tier:'NC', desc:'Senior NCO bridging enlisted and officer corps.',equiv:{ARC:'ARC Warrant Officer',Commando:'Warrant Officer',Navy:'Warrant Officer',Pilot:'Warrant Officer',Engineer:'Technical Officer',Intelligence:'Agent',Jedi:'Jedi Knight / Commander'}},
+  {name:'Sergeant Major',     days:'6',   tier:'NC', desc:'Senior NCO leadership. Advises officers on enlisted matters.',equiv:{ARC:'ARC Sergeant Major',Commando:'Sergeant Major',Pilot:'Sergeant Major',Engineer:'Principle Engineer',Intelligence:'Junior Agent'}},
+  {name:'First Sergeant',     days:'6',   tier:'NC', desc:'Senior NCO managing enlisted soldiers within a company.',equiv:{ARC:'ARC First Sergeant',Commando:'First Sergeant',Navy:'Master Chief',Pilot:'Chief Master Sergeant',Engineer:'Chief Engineer',Intelligence:'Lead Operative'}},
+  {name:'Master Sergeant',    days:'6',   tier:'NC', desc:'Experienced NCO who mentors junior NCOs and maintains standards.',equiv:{ARC:'ARC Master Sergeant',Navy:'Senior Chief',Pilot:'Master Sergeant',Engineer:'Senior Engineer',Intelligence:'Senior Operative'}},
+  {name:'Staff Sergeant',     days:'5',   tier:'NC', desc:'NCO responsible for a section of soldiers.',equiv:{ARC:'ARC Staff Sergeant',Navy:'Chief Petty Officer',Pilot:'Flight Sergeant',Engineer:'Engineer',Intelligence:'Operative'}},
+  {name:'Sergeant',           days:'5',   tier:'NC', desc:'Junior NCO leading a fire team. First leadership role.',equiv:{ARC:'ARC Sergeant',Commando:'Sergeant',Navy:'Petty Officer',Pilot:'Sergeant',Engineer:'Associate Engineer',Intelligence:'Junior Operative',Jedi:'Jedi Padawan'}},
+  {name:'Corporal',           days:'3',   tier:'EN', desc:'Senior enlisted soldier. May lead a buddy team.',equiv:{Commando:'Corporal',Navy:'Leading Crewman',Pilot:'Senior Airman',Engineer:'Senior Technician',Intelligence:'Leading Crewman'}},
+  {name:'Lance Corporal',     days:'2',   tier:'EN', desc:'Experienced private who may take charge of small groups.',equiv:{Commando:'Lance Corporal',Navy:'Able Crewman',Pilot:'Airman First Class',Engineer:'Technician',Intelligence:'Able Crewman'}},
+  {name:'Private First Class',days:'2',   tier:'EN', desc:'Established private who knows procedures and standards.',equiv:{Navy:'Crewman',Pilot:'Airman',Engineer:'Junior Technician',Intelligence:'Crewman'}},
+  {name:'Private',            days:'1',   tier:'EN', desc:'Entry-level rank. All new recruits begin here.',equiv:{ARC:'ARC Trainee',Commando:'RC Trainee',Navy:'Naval Trainee',Pilot:'Flight Cadet',Engineer:'Technical Associate',Intelligence:'Naval Trainee',Jedi:'Jedi Youngling'}},
+];
+
+function buildAllRanks() {
+  var out = {};
+  BRANCHES.forEach(function(b) {
+    out[b] = [];
+    RANKS_ARMY.forEach(function(r) {
+      if (b === 'Army') { out[b].push(r); return; }
+      var eq = r.equiv || {};
+      if (eq[b]) out[b].push({ name:eq[b], days:r.days, tier:r.tier, desc:r.desc, armyEquiv:r.name, equiv:r.equiv });
+    });
+  });
+  return out;
+}
+var ALL_RANKS = buildAllRanks();
+
+var SECTION_KEYS = ['REPUBLIC HIGH COMMAND','PERMANENT REGIMENTS','DONATOR REGIMENTS','SPECIAL OPERATIONS BRIGADE','DISBANDED'];
+var FILTER_MAP = {
+  'RHC':'REPUBLIC HIGH COMMAND','Permanent':'PERMANENT REGIMENTS',
+  'Donator':'DONATOR REGIMENTS','Special Ops':'SPECIAL OPERATIONS BRIGADE','Disbanded':'DISBANDED'
+};
+
+var allCommanders = [];
+var activeFil = 'All';
+var activeReg = null;
+var activeBranch = 'Army';
+
+function gc(n) {
+  if (!n) return '#666688';
+  for (var k in REGIMENT_COLOURS) { if (n.indexOf(k) > -1) return REGIMENT_COLOURS[k]; }
+  return '#666688';
+}
+
+function clean(s) { return (s||'').replace(/^"|"$/g,'').trim(); }
+function isEmpty(row) { return !row||row.every(function(c){return !clean(c);}); }
+
+function parseCSV(text) {
+  var rows=[],lines=text.split('\n');
+  for (var i=0;i<lines.length;i++) {
+    var line=lines[i].trim();if(!line)continue;
+    var cols=[],cur='',inQ=false;
+    for (var c=0;c<line.length;c++) {
+      var ch=line[c];
+      if(ch==='"'){inQ=!inQ;}
+      else if(ch===','&&!inQ){cols.push(cur.trim());cur='';}
+      else{cur+=ch;}
+    }
+    cols.push(cur.trim());rows.push(cols);
+  }
+  return rows;
+}
+
+function parseCommanders(rows) {
+  var section='',results=[];
+  for (var i=0;i<rows.length;i++) {
+    var row=rows[i];if(isEmpty(row))continue;
+    var first='';
+    for(var c=0;c<row.length;c++){var v=clean(row[c]);if(v){first=v;break;}}
+    var secMatch=false;
+    for(var s=0;s<SECTION_KEYS.length;s++){if(first.indexOf(SECTION_KEYS[s])>-1){section=SECTION_KEYS[s];secMatch=true;break;}}
+    if(secMatch)continue;
+    if(first==='COMMANDER'||first==='Name'||first.indexOf('CELESTIAL')>-1||first.indexOf('COMMANDERS SHEET')>-1||first.indexOf('REPUBLIC HIGH COMMAND:')>-1)continue;
+    var name=clean(row[0]),regiment,rank,alias,lastPromo,eligible,nextMeeting;
+    if(name&&name.length>1&&name!=='N/A'&&name!=='N / A'){
+      regiment=clean(row[2]);rank=clean(row[4])||clean(row[3]);alias=clean(row[7])||clean(row[5]);
+      lastPromo=clean(row[8])||clean(row[6]);eligible=clean(row[9])||clean(row[7]);nextMeeting=clean(row[10])||clean(row[8]);
+    } else {
+      name=clean(row[1]);regiment=clean(row[3]);rank=clean(row[5]);alias=clean(row[6]);
+      lastPromo=clean(row[7]);eligible=clean(row[8]);nextMeeting=clean(row[9]);
+    }
+    if(!name||name.length<2)continue;
+    results.push({name:name,regiment:regiment,rank:rank,alias:alias,lastPromo:lastPromo,eligible:eligible,nextMeeting:nextMeeting,section:section,colour:gc(regiment)});
+  }
+  return results;
+}
+
+function filtered() {
+  var s=(document.getElementById('cn-search')||{}).value||'';s=s.toLowerCase();
+  return allCommanders.filter(function(c){
+    var fm=activeFil==='All'||c.section===FILTER_MAP[activeFil];
+    if(!fm)return false;
+    if(!s)return true;
+    return(c.name||'').toLowerCase().indexOf(s)>-1||(c.regiment||'').toLowerCase().indexOf(s)>-1||(c.alias||'').toLowerCase().indexOf(s)>-1||(c.rank||'').toLowerCase().indexOf(s)>-1;
+  });
+}
+
+function buildStats() {
+  var fc=filtered();
+  var elig=fc.filter(function(c){return(c.eligible||'').toLowerCase()==='yes';}).length;
+  var regs=[...new Set(fc.map(function(c){return c.regiment;}))].length;
+  var rhc=fc.filter(function(c){return c.section==='REPUBLIC HIGH COMMAND';}).length;
+  document.getElementById('cn-stats').innerHTML=[
+    {v:fc.length,l:'Commanders',c:'#c9a84c'},{v:elig,l:'Eligible',c:'#27ae60'},
+    {v:regs,l:'Regiments',c:'#4a90d9'},{v:rhc,l:'RHC Members',c:'#a060e0'}
+  ].map(function(s){return'<div class="cn-stat"><div class="cn-stat-v" style="color:'+s.c+'">'+s.v+'</div><div class="cn-stat-l">'+s.l+'</div></div>';}).join('');
+}
+
+function buildFilters() {
+  document.getElementById('cn-filters').innerHTML=['All','RHC','Permanent','Donator','Special Ops','Disbanded'].map(function(f){
+    return'<button class="cn-fil'+(f===activeFil?' cn-fil-on':'')+'" onclick="cnSetFil(\''+f+'\')">'+(f==='All'?'All sections':f)+'</button>';
+  }).join('');
+}
+
+function buildSidebar() {
+  var fc=filtered(),rm={},ro=[];
+  fc.forEach(function(c){var k=c.regiment||'Unassigned';if(!rm[k]){rm[k]=[];ro.push(k);}rm[k].push(c);});
+  var seen={};ro=ro.filter(function(r){if(seen[r])return false;seen[r]=true;return true;});
+  if(!ro.length){document.getElementById('cn-sidebar').innerHTML='<div class="cn-empty">No results found.</div>';return;}
+  document.getElementById('cn-sidebar').innerHTML=ro.map(function(rn){
+    var arr=rm[rn],col=gc(rn),el=arr.filter(function(c){return(c.eligible||'').toLowerCase()==='yes';}).length,isA=activeReg===rn;
+    return'<div class="cn-reg-item'+(isA?' cn-reg-on':'')+'" onclick="cnSelReg(\''+rn.replace(/'/g,"\\'")+'\')\" style="--rc:'+col+'">'
+      +'<div class="cn-reg-bar" style="background:'+col+'"></div>'
+      +'<div class="cn-reg-body"><div class="cn-reg-name">'+rn+'</div>'
+      +'<div class="cn-reg-meta"><span>'+arr.length+' commander'+(arr.length!==1?'s':'')+'</span>'+(el?'<span class="cn-reg-elig">'+el+' eligible</span>':'')+'</div>'
+      +'</div></div>';
+  }).join('');
+}
+
+function buildPanel(rn) {
+  var panel=document.getElementById('cn-panel');
+  if(!rn){panel.innerHTML='<div class="cn-panel-empty"><svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.3"><circle cx="20" cy="20" r="15"/><path d="M20 13v7l4 3"/></svg><p>Select a regiment from the list</p></div>';return;}
+  var col=gc(rn),rcmds=allCommanders.filter(function(c){return c.regiment===rn;});
+  var sec=rcmds.length?rcmds[0].section:'';
+  var h='<div class="cn-panel-top" style="border-color:'+col+'">'
+    +'<div class="cn-panel-title">'+rn+'</div>';
+  if(sec)h+='<div class="cn-pm"><span class="cn-pml">Section</span><span>'+sec.replace(/ REGIMENTS/,'').replace(/ BRIGADE/,' Brigade')+'</span></div>';
+  h+='</div><div class="cn-slbl">Commanders ('+rcmds.length+')</div>';
+  if(!rcmds.length){h+='<div class="cn-empty">No commanders currently assigned.</div>';}
+  else{
+    h+='<div class="cn-cmd-list">'+rcmds.map(function(c){
+      var el=(c.eligible||'').toLowerCase()==='yes';
+      var gi=allCommanders.indexOf(c);
+      return'<div class="cn-cmd-card" onclick="cnCmdPopup('+gi+')">'
+        +'<div class="cn-cmd-av" style="background:'+col+'22;color:'+col+';border-color:'+col+'44">'+c.name.charAt(0)+'</div>'
+        +'<div class="cn-cmd-info"><div class="cn-cmd-name">'+c.name+'</div>'
+        +'<div class="cn-cmd-rank">'+c.rank+(c.alias?' &middot; <span class="cn-cmd-alias">'+c.alias+'</span>':'')+'</div></div>'
+        +'<div class="cn-cmd-right">'+(el?'<div class="cn-elig-badge">Eligible</div>':'')
+        +(c.lastPromo?'<div class="cn-cmd-date">Promoted '+c.lastPromo+'</div>':'')
+        +(c.nextMeeting&&c.nextMeeting!=='N/A'?'<div class="cn-cmd-date">Meeting '+c.nextMeeting+'</div>':'')
+        +'</div><div class="cn-info-ico">i</div></div>';
+    }).join('')+'</div>';
+  }
+  panel.innerHTML=h;
+}
+
+function buildBranchTabs() {
+  document.getElementById('cn-branch-tabs').innerHTML=BRANCHES.map(function(b){
+    var col=BRANCH_COLS[b],isOn=b===activeBranch;
+    return'<button class="cn-btab'+(isOn?' cn-btab-on':'')+'" style="'+(isOn?'background:'+col+';color:#fff;border-color:'+col:'')+'" onclick="cnSetBranch(\''+b+'\')">'+b+'</button>';
+  }).join('');
+}
+
+function buildRankList() {
+  var ranks=ALL_RANKS[activeBranch]||[],lastTier='';
+  document.getElementById('cn-rank-list').innerHTML=ranks.map(function(r,i){
+    var tm=TIER_META[r.tier]||{label:r.tier,bg:'#555',text:'#fff',border:'#555'};
+    var div=r.tier!==lastTier?'<div class="cn-rank-div" style="background:'+tm.bg+';color:'+tm.text+'">'+tm.label+'</div>':'';
+    lastTier=r.tier;
+    return div+'<div class="cn-rank-row" onclick="cnRankPopup(\''+activeBranch+'\','+i+')" style="border-left-color:'+tm.bg+'">'
+      +'<div class="cn-rank-badge-ico" style="background:'+tm.bg+'22;color:'+tm.bg+';border:1px solid '+tm.bg+'55">'+r.tier+'</div>'
+      +'<div class="cn-rank-name">'+r.name+'</div>'
+      +(r.days==='MAX'?'<span class="cn-rank-max">MAX</span>':(r.days?'<span class="cn-rank-days">'+r.days+(r.days==='1'?' day':' days')+'</span>':''))
+      +'<div class="cn-rank-info-ico">i</div>'
+      +'</div>';
+  }).join('');
+}
+
+window.cnCmdPopup=function(idx){
+  var c=allCommanders[idx];if(!c)return;
+  var col=gc(c.regiment),el=(c.eligible||'').toLowerCase()==='yes';
+  document.getElementById('cn-popup').innerHTML='<button class="cn-popup-close" onclick="cnClosePopup()">&#215;</button>'
+    +'<div class="cn-popup-top">'
+    +'<div class="cn-popup-av" style="background:'+col+'22;color:'+col+';border-color:'+col+'44">'+c.name.charAt(0)+'</div>'
+    +'<div class="cn-popup-name">'+c.name+'</div>'
+    +'<div class="cn-popup-sub">'+c.rank+(c.alias?' &middot; '+c.alias:'')+'</div>'
+    +'</div><div class="cn-popup-body">'
+    +'<div class="cn-popup-row"><span class="cn-popup-lbl">Regiment</span><span>'+c.regiment+'</span></div>'
+    +'<div class="cn-popup-row"><span class="cn-popup-lbl">Section</span><span>'+(c.section||'').replace(/ REGIMENTS/,'').replace(/ BRIGADE/,' Brigade')+'</span></div>'
+    +(c.lastPromo?'<div class="cn-popup-row"><span class="cn-popup-lbl">Last Promoted</span><span>'+c.lastPromo+'</span></div>':'')
+    +'<div class="cn-popup-row"><span class="cn-popup-lbl">Eligible</span><span class="cn-elig-pill '+(el?'cn-elig-y':'cn-elig-n')+'">'+(el?'Yes, eligible for promotion':'Not yet eligible')+'</span></div>'
+    +(c.nextMeeting&&c.nextMeeting!=='N/A'?'<div class="cn-popup-row"><span class="cn-popup-lbl">Next Meeting</span><span>'+c.nextMeeting+'</span></div>':'')
+    +'</div>';
+  document.getElementById('cn-overlay').classList.add('cn-overlay-show');
+};
+
+window.cnRankPopup=function(branch,idx){
+  var r=(ALL_RANKS[branch]||[])[idx];if(!r)return;
+  var tm=TIER_META[r.tier]||{label:r.tier,bg:'#555',text:'#fff'};
+  var equivKeys=Object.keys(r.equiv||{});
+  var h='<button class="cn-popup-close" onclick="cnClosePopup()">&#215;</button>'
+    +'<div class="cn-popup-top">'
+    +'<div class="cn-popup-av" style="background:'+tm.bg+';color:'+tm.text+';border-color:'+tm.bg+';font-size:11px;font-weight:700">'+r.tier+'</div>'
+    +'<div class="cn-popup-name">'+r.name+'</div>'
+    +'<div class="cn-popup-sub">'+branch+' Ranks'+(r.days&&r.days!=='MAX'?' &middot; Min. '+r.days+(r.days==='1'?' day':' days'):'')+'</div>'
+    +'</div><div class="cn-popup-body">'
+    +'<div class="cn-popup-row"><span class="cn-popup-lbl">Tier</span><span class="cn-tier-pill" style="background:'+tm.bg+'22;color:'+tm.bg+';border:1px solid '+tm.bg+'44">'+tm.label+'</span></div>'
+    +'<div class="cn-popup-row"><span class="cn-popup-lbl">Description</span><span>'+r.desc+'</span></div>'
+    +(r.armyEquiv?'<div class="cn-popup-row"><span class="cn-popup-lbl">Army Equivalent</span><span>'+r.armyEquiv+'</span></div>':'')
+    +'<div class="cn-popup-row"><span class="cn-popup-lbl">Minimum Wait</span><span>'+(r.days==='MAX'?'<span style="color:#c9a84c;font-weight:700">Maximum rank. No standard promotion beyond this.</span>':r.days?(r.days+(r.days==='1'?' day':' days')):'No minimum')+'</span></div>';
+  if(equivKeys.length){
+    h+='<div class="cn-popup-row cn-popup-block"><span class="cn-popup-lbl">Equivalent ranks</span><div class="cn-equiv-grid">';
+    equivKeys.forEach(function(b){if(b!==branch)h+='<span class="cn-equiv-tag"><strong>'+b+':</strong> '+r.equiv[b]+'</span>';});
+    h+='</div></div>';
+  }
+  h+='</div>';
+  document.getElementById('cn-popup').innerHTML=h;
+  document.getElementById('cn-overlay').classList.add('cn-overlay-show');
+};
+
+window.cnClosePopup=function(e){
+  if(!e||e.target===document.getElementById('cn-overlay'))
+    document.getElementById('cn-overlay').classList.remove('cn-overlay-show');
+};
+
+window.cnTab=function(id,btn){
+  document.querySelectorAll('.cn-page').forEach(function(p){p.classList.remove('cn-page-active');});
+  document.querySelectorAll('.cn-tab').forEach(function(t){t.classList.remove('cn-tab-active');});
+  document.getElementById('cn-page-'+id).classList.add('cn-page-active');
+  btn.classList.add('cn-tab-active');
+};
+
+window.cnSetFil=function(f){activeFil=f;activeReg=null;cnRender();};
+window.cnSelReg=function(n){activeReg=n;buildSidebar();buildPanel(n);};
+window.cnSetBranch=function(b){activeBranch=b;buildBranchTabs();buildRankList();};
+
+function cnRender(){buildStats();buildFilters();buildSidebar();buildPanel(activeReg);}
+
+function init(){
+  var xhr=new XMLHttpRequest();
+  xhr.open('GET',CSV_URL,true);
+  xhr.onload=function(){
+    document.getElementById('cn-loading').style.display='none';
+    if(xhr.status===200) allCommanders=parseCommanders(parseCSV(xhr.responseText));
+    document.getElementById('cn-page-commanders').classList.add('cn-page-active');
+    cnRender();buildBranchTabs();buildRankList();
+    var now=new Date();
+    var el=document.getElementById('cn-updated');
+    if(el)el.textContent='Last updated: '+now.toLocaleDateString([],{day:'numeric',month:'short',year:'numeric'})+' at '+now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    var si=document.getElementById('cn-search');
+    if(si)si.addEventListener('input',function(){cnRender();});
+  };
+  xhr.onerror=function(){
+    document.getElementById('cn-loading').innerHTML='<p style="color:#e74c3c">Failed to load data. Please refresh.</p>';
+  };
+  xhr.send();
+}
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+else init();
+
+})();
+</script>
+</body>
+</html>
